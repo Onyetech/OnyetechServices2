@@ -1,4 +1,4 @@
-package com.onyetech.onyetech.model;
+package com.onyetech.onyetech.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
