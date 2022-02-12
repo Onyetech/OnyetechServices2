@@ -1,4 +1,4 @@
-package com.onyetech.onyetech.model;
+package com.onyetech.onyetech.entity;
 
 import com.onyetech.onyetech.enums.serviceType;
 import com.sun.istack.NotNull;
