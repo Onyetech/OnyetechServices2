@@ -2,7 +2,7 @@ package com.onyetech.onyetech.entity;
 
 
 import com.onyetech.onyetech.enums.UserRole;
-import com.sun.istack.NotNull;
+import javax.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -28,25 +30,14 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "student_sequence")
     private Long Id;
 
-    @NotNull
-    private String username;
-
-    @NotNull
     private String firstName;
 
-    @NotNull
     private String lastName;
 
-    @NotNull
     private String email;
 
-    @NotNull
-    private String gender;
-
-    @NotNull
     private String password;
 
-    @NotNull
     private String verifyPassword;
 
     @Enumerated(EnumType.STRING)
@@ -56,18 +47,24 @@ public class User implements UserDetails {
 
     private Boolean enabled;
 
-    public User(String username, String firstName, String lastName, String email, String gender,
-                String password, String verifyPassword, UserRole userRole, Boolean locked, Boolean enabled) {
-        this.username = username;
+    public User(String firstName, String lastName, String email, String gender,
+                String password, String verifyPassword, UserRole userRole) {
+
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.gender = gender;
         this.password = password;
         this.verifyPassword = verifyPassword;
         this.userRole = userRole;
-        this.locked = locked;
-        this.enabled = enabled;
+    }
+
+    public User(String firstName, String lastName, String email, String password, UserRole userRole) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.userRole = userRole;
+
     }
 
     @Override
@@ -77,7 +74,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername(){
-        return username;
+        return email;
     }
 
     @Override

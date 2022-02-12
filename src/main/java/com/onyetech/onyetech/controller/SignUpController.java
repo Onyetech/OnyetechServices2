@@ -7,17 +7,17 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping(path = "user/registration")
+@RequestMapping(path = "user")
 public class SignUpController {
 
     private RegistrationService registrationService;
 
-public String registerUser(@RequestBody RegistrationRequest request){
+
+    @PostMapping("/registration")
+    public String registerUser(@RequestBody RegistrationRequest request){
 
     return registrationService.register(request);
 
 }
-
-
 
 }
