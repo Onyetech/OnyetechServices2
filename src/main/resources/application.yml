@@ -1,13 +1,16 @@
 server:
+
   error:
+
     include-message: always
     include-binding-errors: always
+  port: 8050
 
 spring:
   datasource:
     password: postgres
     url: jdbc:postgresql://localhost:5430/OnyetechServices
-    username: root
+    username:
   jpa:
     hibernate:
       ddl-auto: update
@@ -19,7 +22,7 @@ spring:
 
   mail:
     host: localhost
-    port: 8050
+    port: 1080
     username: postgres
     password: root
 
