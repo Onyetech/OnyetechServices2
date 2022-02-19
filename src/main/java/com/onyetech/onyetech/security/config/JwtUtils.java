@@ -1,13 +1,11 @@
-package com.chompfooddeliveryapp.security.jwt;
+package com.onyetech.onyetech.security.config;
 
-import com.chompfooddeliveryapp.security.service.UserDetailsImpl;
-import io.jsonwebtoken.*;
+
+import com.onyetech.onyetech.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
@@ -17,15 +15,17 @@ import java.util.Date;
 public class JwtUtils {
     private final String jwtSecret;
     private final int jwtExpirationMs;
+    private final UserService userService;
 
-    public JwtUtils(@Value("${chompfood.app.jwtSecret}") String jwtSecret, @Value("${chompfood.app.jwtExpirationMs}") int jwtExpirationMs) {
+    public JwtUtils(@Value("${chompfood.app.jwtSecret}") String jwtSecret, @Value("${chompfood.app.jwtExpirationMs}") int jwtExpirationMs, UserService userService) {
         this.jwtSecret = jwtSecret;
         this.jwtExpirationMs = jwtExpirationMs;
+        this.userService = userService;
     }
 
     public String generateJwtToken(Authentication authentication) {
 
-        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+        UserService userPrincipal = (UserService) authentication.getPrincipal();
         return Jwts.builder()
                 .setSubject((userPrincipal.getUsername()))
                 .setIssuedAt(new Date())

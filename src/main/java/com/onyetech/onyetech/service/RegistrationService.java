@@ -60,14 +60,12 @@ public class RegistrationService {
             user.setLastName(request.getLastName());
             user.setFirstName(request.getFirstName());
             user.setEmail(request.getEmail());
-            user.setPassword(request.getPassword());
+//            user.setPassword(request.getPassword());
 
-            String encodePassword = bCryptPasswordEncoder.encode(user.getPassword());
+            String encodePassword = bCryptPasswordEncoder.encode(request.getPassword());
             user.setPassword(encodePassword);
 
             userRepository.save(user);
-
-
 
         }
 
@@ -159,7 +157,6 @@ public class RegistrationService {
         } catch (MailjetException | MailjetSocketTimeoutException e) {
             e.printStackTrace();
         }
-//        confirmationTokenService.saveConfirmationToken(token);
         return token;
     }
 

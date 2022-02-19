@@ -11,12 +11,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 public class UserService implements UserDetailsService {
+
 
     private final static String USER_NOT_FOUND_MSG = "User with the email %s not found";
     private final UserRepository userRepository;
@@ -29,35 +28,6 @@ public class UserService implements UserDetailsService {
                 orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, email)));
     }
 
-//    public String signUpUser(User user){
-//
-//        boolean userExists = userRepository.findByEmail(user.getEmail()).isPresent();
-//        if (userExists){
-//            throw  new IllegalStateException("email already taken");
-//        }
-//        String encodePassword = bCryptPasswordEncoder.encode(user.getPassword());
-//        user.setPassword(encodePassword);
-//        userRepository.save(user);
-//
-//        // Todo: send a confirmation token
-////
-//        String token = UUID.randomUUID().toString();
-//        ConfirmationToken confirmationToken = new ConfirmationToken(
-//                token,
-//                LocalDateTime.now(),
-//                LocalDateTime.now().plusMinutes(30),
-//                user
-//        );
-//
-//        System.out.println("-------------****************************************" + token);
-//
-//        confirmationTokenService.saveConfirmationToken(confirmationToken);
-////
-////        //TODO: Send email
-////
-//        return encodePassword;
-//    }
-//
     public void enableUser(String email) {
         userRepository.enableUser(email);
     }
