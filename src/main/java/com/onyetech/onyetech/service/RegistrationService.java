@@ -1,33 +1,49 @@
 package com.onyetech.onyetech.service;
 
-import com.onyetech.onyetech.email.EmailSender;
+import com.mailjet.client.errors.MailjetException;
+import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import com.onyetech.onyetech.email.EmailValidator;
+import com.onyetech.onyetech.email.MailService;
 import com.onyetech.onyetech.entity.User;
-import com.onyetech.onyetech.enums.UserRole;
+import com.onyetech.onyetech.repository.UserRepository;
 import com.onyetech.onyetech.request.RegistrationRequest;
+import com.onyetech.onyetech.security.PasswordEncoder;
 import com.onyetech.onyetech.token.ConfirmationToken;
 import com.onyetech.onyetech.token.ConfirmationTokenService;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 
+import java.util.UUID;
+
 @Service
-@AllArgsConstructor
 public class RegistrationService {
 
     private final UserService userService;
     private final EmailValidator emailValidator;
     private final ConfirmationTokenService confirmationTokenService;
-    private final EmailSender emailSender;
-    private final User user;
+    private final MailService mailService;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-
-
+    @Autowired
+    public RegistrationService(UserService userService, EmailValidator emailValidator,
+                               ConfirmationTokenService confirmationTokenService, MailService mailService, UserRepository userRepository, PasswordEncoder passwordEncoder, BCryptPasswordEncoder bCryptPasswordEncoder) throws MailjetException, MailjetSocketTimeoutException {
+        this.userService = userService;
+        this.emailValidator = emailValidator;
+        this.confirmationTokenService = confirmationTokenService;
+        this.mailService = mailService;
+        this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
 
 
     public String register(RegistrationRequest request) {
+
+        User user = new User();
 
         boolean isValidEmail = emailValidator.
                 test(request.getEmail());
@@ -36,47 +52,41 @@ public class RegistrationService {
             throw new IllegalStateException("email not valid");
         }
 
-        String token = userService.signUpUser(
-                new User(
-                request.getFirstName(),
-                request.getLastName(),
-                request.getEmail(),
-                request.getPassword(),
-                UserRole.USER
 
-                )
+        if(userRepository.findByEmail(request.getEmail()).isPresent()) {
+
+            throw new RuntimeException("email exist");
+        }else{
+            user.setLastName(request.getLastName());
+            user.setFirstName(request.getFirstName());
+            user.setEmail(request.getEmail());
+            user.setPassword(request.getPassword());
+
+            String encodePassword = bCryptPasswordEncoder.encode(user.getPassword());
+            user.setPassword(encodePassword);
+
+            userRepository.save(user);
+
+
+
+        }
+
+        userRepository.save(user);
+
+
+       String token = UUID.randomUUID().toString();
+
+        ConfirmationToken confirmationToken = new ConfirmationToken(
+               token,
+               LocalDateTime.now(),
+               LocalDateTime.now().plusMinutes(30),
+                user
+
         );
+
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
         String link = "http://localhost:8050/user/sign-up/confirm?token=" + token;
-        emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));
-        return token;
-    }
-
-    @Transactional
-    public String confirmToken(String token) {
-        ConfirmationToken confirmationToken = confirmationTokenService
-                .getToken(token)
-                .orElseThrow(() ->
-                        new IllegalStateException("token not found"));
-
-        if (confirmationToken.getConfirmedAt() != null) {
-            throw new IllegalStateException("email already confirmed");
-        }
-
-        LocalDateTime expiredAt = confirmationToken.getExpiresAt();
-
-        if (expiredAt.isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("token expired");
-        }
-
-        confirmationTokenService.setConfirmedAt(token);
-        userService.enableUser(
-                confirmationToken.getUser().getEmail());
-        return "confirmed";
-    }
-
-
-    private String buildEmail(String name, String link) {
-        return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
+        String content = "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
                 "\n" +
                 "<span style=\"display:none;font-size:1px;color:#fff;max-height:0\"></span>\n" +
                 "\n" +
@@ -131,7 +141,7 @@ public class RegistrationService {
                 "      <td width=\"10\" valign=\"middle\"><br></td>\n" +
                 "      <td style=\"font-family:Helvetica,Arial,sans-serif;font-size:19px;line-height:1.315789474;max-width:560px\">\n" +
                 "        \n" +
-                "            <p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\">Hi " + name + ",</p><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> Thank you for registering. Please click on the below link to activate your account: </p><blockquote style=\"Margin:0 0 20px 0;border-left:10px solid #b1b4b6;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\"><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> <a href=\"" + link + "\">Activate Now</a> </p></blockquote>\n Link will expire in 15 minutes. <p>See you soon</p>" +
+                "            <p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\">Hi " + request.getFirstName() + ",</p><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> Thank you for registering. Please click on the below link to activate your account: </p><blockquote style=\"Margin:0 0 20px 0;border-left:10px solid #b1b4b6;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\"><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> <a href=\"" + link + "\">Activate Now</a> </p></blockquote>\n Link will expire in 30 minutes. <p>See you soon</p>" +
                 "        \n" +
                 "      </td>\n" +
                 "      <td width=\"10\" valign=\"middle\"><br></td>\n" +
@@ -142,5 +152,40 @@ public class RegistrationService {
                 "  </tbody></table><div class=\"yj6qo\"></div><div class=\"adL\">\n" +
                 "\n" +
                 "</div></div>";
+
+        try {
+            String title = "Here is your confirmation email.";
+            mailService.sendMail(request.getEmail(), content, title);
+        } catch (MailjetException | MailjetSocketTimeoutException e) {
+            e.printStackTrace();
+        }
+//        confirmationTokenService.saveConfirmationToken(token);
+        return token;
     }
+
+
+
+    @Transactional
+    public String confirmToken(String token) {
+        ConfirmationToken confirmationToken = confirmationTokenService
+                .getToken(token)
+                .orElseThrow(() ->
+                        new IllegalStateException("token not found"));
+
+        if (confirmationToken.getConfirmedAt() != null) {
+            throw new IllegalStateException("email already confirmed");
+        }
+
+        LocalDateTime expiredAt = confirmationToken.getExpiresAt();
+
+        if (expiredAt.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("token expired");
+        }
+
+        confirmationTokenService.setConfirmedAt(token);
+        userService.enableUser(
+                confirmationToken.getUser().getEmail());
+        return "confirmed";
+    }
+
 }
