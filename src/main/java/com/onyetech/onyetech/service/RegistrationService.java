@@ -7,11 +7,10 @@ import com.onyetech.onyetech.email.MailService;
 import com.onyetech.onyetech.entity.User;
 import com.onyetech.onyetech.repository.UserRepository;
 import com.onyetech.onyetech.request.RegistrationRequest;
-import com.onyetech.onyetech.security.PasswordEncoder;
+import com.onyetech.onyetech.security.config.PasswordHashing;
 import com.onyetech.onyetech.token.ConfirmationToken;
 import com.onyetech.onyetech.token.ConfirmationTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -27,17 +26,15 @@ public class RegistrationService {
     private final ConfirmationTokenService confirmationTokenService;
     private final MailService mailService;
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     public RegistrationService(UserService userService, EmailValidator emailValidator,
-                               ConfirmationTokenService confirmationTokenService, MailService mailService, UserRepository userRepository, PasswordEncoder passwordEncoder, BCryptPasswordEncoder bCryptPasswordEncoder) throws MailjetException, MailjetSocketTimeoutException {
+                               ConfirmationTokenService confirmationTokenService, MailService mailService, UserRepository userRepository) throws MailjetException, MailjetSocketTimeoutException {
         this.userService = userService;
         this.emailValidator = emailValidator;
         this.confirmationTokenService = confirmationTokenService;
         this.mailService = mailService;
         this.userRepository = userRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
 
@@ -60,13 +57,7 @@ public class RegistrationService {
             user.setLastName(request.getLastName());
             user.setFirstName(request.getFirstName());
             user.setEmail(request.getEmail());
-//            user.setPassword(request.getPassword());
-
-            String encodePassword = bCryptPasswordEncoder.encode(request.getPassword());
-            user.setPassword(encodePassword);
-
-            userRepository.save(user);
-
+            user.setPassword(PasswordHashing.encryptPassword(request.getPassword()));
         }
 
         userRepository.save(user);
