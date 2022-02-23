@@ -18,12 +18,8 @@ import java.util.Map;
 
 
 @RestController
-//@AllArgsConstructor
 @RequestMapping(path = "/user")
 public class UserController {
-
-    Map<String, User> users;
-//    User deleteUser = new User();
 
     private final RegistrationService registrationService;
     private final UserService userService;
@@ -54,15 +50,11 @@ public class UserController {
     @PostMapping("/login")
     public String loginUser(@RequestBody LoginRequest request, User users) {
 
-//        System.out.println(request.getPassword());
-//        System.out.println(PasswordHashing.encryptPassword(request.getPassword()));
         return (String) userService.authUserLogin(request, users);
     }
 
     @PutMapping(path="/update-details/{userId}")
     public User updateUser(@PathVariable Long userId, @Valid @RequestBody UpdateUserDetailsRequest updatedUserDetail){
-//        User user = userRepository.findByEmail(updatedUserDetail.getEmail())
-//                .orElseThrow(()-> new UsernameNotFoundException("User not found"));
 
         User storedUserDetails = userRepository.findById(userId)
                 .orElseThrow(()-> new UsernameNotFoundException("User not found"));
@@ -72,7 +64,6 @@ public class UserController {
         storedUserDetails.setEmail(updatedUserDetail.getEmail());
         storedUserDetails.setPassword(updatedUserDetail.getPassword());
         storedUserDetails.setUserRole(UserRole.USER);
-//        users.put(userId, storedUserDetails);
         userRepository.save(storedUserDetails);
         return storedUserDetails;
     }
@@ -80,7 +71,6 @@ public class UserController {
     @DeleteMapping(path="/delete/{userId}")
     public String deleteUser(@PathVariable Long userId){
 
-//        userService.deleteUser(userId);
         confirmationTokenRepository.deleteAllByUserUserId(userId);
         userRepository.deleteById(userId);
         return "User successfully deleted!";
