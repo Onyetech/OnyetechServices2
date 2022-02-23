@@ -11,11 +11,10 @@ import com.onyetech.onyetech.service.UserService;
 import com.onyetech.onyetech.token.ConfirmationTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Map;
-
 
 @RestController
 @RequestMapping(path = "/user")
@@ -25,14 +24,15 @@ public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
     private final ConfirmationTokenRepository confirmationTokenRepository;
-    private User user;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
-    public UserController(RegistrationService registrationService, UserService userService, UserRepository userRepository, ConfirmationTokenRepository confirmationTokenRepository) {
+    public UserController(RegistrationService registrationService, UserService userService, UserRepository userRepository, ConfirmationTokenRepository confirmationTokenRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.registrationService = registrationService;
         this.userService = userService;
         this.userRepository = userRepository;
         this.confirmationTokenRepository = confirmationTokenRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @PostMapping("/registration")
@@ -62,10 +62,11 @@ public class UserController {
         storedUserDetails.setFirstName(updatedUserDetail.getFirstName());
         storedUserDetails.setLastName(updatedUserDetail.getLastName());
         storedUserDetails.setEmail(updatedUserDetail.getEmail());
-        storedUserDetails.setPassword(updatedUserDetail.getPassword());
+        storedUserDetails.setPassword(bCryptPasswordEncoder.encode(updatedUserDetail.getPassword()));
         storedUserDetails.setUserRole(UserRole.USER);
-        userRepository.save(storedUserDetails);
-        return storedUserDetails;
+
+            userRepository.save(storedUserDetails);
+            return storedUserDetails;
     }
 
     @DeleteMapping(path="/delete/{userId}")
@@ -75,4 +76,13 @@ public class UserController {
         userRepository.deleteById(userId);
         return "User successfully deleted!";
     }
+
+    @GetMapping("/get-users")
+    public User getUsers(@PathVariable User request){
+      User users = userRepository.findAllByUserId(request.getUserId());
+        return users;
+    }
+
+
+
 }

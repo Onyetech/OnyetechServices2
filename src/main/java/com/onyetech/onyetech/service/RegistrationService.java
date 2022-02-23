@@ -60,7 +60,6 @@ public class RegistrationService {
             user.setLastName(request.getLastName());
             user.setFirstName(request.getFirstName());
             user.setEmail(request.getEmail());
-//            user.setPassword(PasswordHashing.encryptPassword(request.getPassword()));
             user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
         }
 

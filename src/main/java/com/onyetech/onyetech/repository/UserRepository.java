@@ -13,9 +13,7 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
-//    Optional<User> findByEmailAndPassword(String email, String password);
-//    User authUserLogin(String email, String password);
-//    void deleteUser(Long userId);
+    User findAllByUserId(Long userId);
 
     @Transactional
     @Modifying
@@ -23,7 +21,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "SET a.enabled = TRUE WHERE a.email = ?1")
     void enableUser(String email);
 
-//    void delete(Optional<User> byId);
 
 
 }
