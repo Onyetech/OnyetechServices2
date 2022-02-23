@@ -13,6 +13,7 @@ import java.util.Optional;
 @Transactional
 public interface ConfirmationTokenRepository extends JpaRepository<ConfirmationToken, Long> {
     Optional<ConfirmationToken> findByToken (String token);
+    void deleteAllByUserUserId(Long userId);
 
     @Transactional
     @Modifying

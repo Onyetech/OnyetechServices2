@@ -11,6 +11,7 @@ import com.onyetech.onyetech.security.config.PasswordHashing;
 import com.onyetech.onyetech.token.ConfirmationToken;
 import com.onyetech.onyetech.token.ConfirmationTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -26,15 +27,17 @@ public class RegistrationService {
     private final ConfirmationTokenService confirmationTokenService;
     private final MailService mailService;
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     public RegistrationService(UserService userService, EmailValidator emailValidator,
-                               ConfirmationTokenService confirmationTokenService, MailService mailService, UserRepository userRepository) throws MailjetException, MailjetSocketTimeoutException {
+                               ConfirmationTokenService confirmationTokenService, MailService mailService, UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) throws MailjetException, MailjetSocketTimeoutException {
         this.userService = userService;
         this.emailValidator = emailValidator;
         this.confirmationTokenService = confirmationTokenService;
         this.mailService = mailService;
         this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
 
@@ -57,7 +60,8 @@ public class RegistrationService {
             user.setLastName(request.getLastName());
             user.setFirstName(request.getFirstName());
             user.setEmail(request.getEmail());
-            user.setPassword(PasswordHashing.encryptPassword(request.getPassword()));
+//            user.setPassword(PasswordHashing.encryptPassword(request.getPassword()));
+            user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
         }
 
         userRepository.save(user);

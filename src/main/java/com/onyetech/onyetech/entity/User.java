@@ -2,7 +2,6 @@ package com.onyetech.onyetech.entity;
 
 
 import com.onyetech.onyetech.enums.UserRole;
-import javax.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,8 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -28,7 +25,7 @@ public class User implements UserDetails {
     @Id
     @SequenceGenerator(name = "student_sequence", sequenceName = "student_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "student_sequence")
-    private Long Id;
+    private Long userId;
 
     private String firstName;
 
@@ -41,7 +38,7 @@ public class User implements UserDetails {
     private String verifyPassword;
 
     @Enumerated(EnumType.STRING)
-    private UserRole userRole;
+    private UserRole userRole = UserRole.USER;
 
     private Boolean locked = false;
 
