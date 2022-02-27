@@ -3,6 +3,7 @@ package com.onyetech.onyetech.service;
 import com.onyetech.onyetech.entity.User;
 import com.onyetech.onyetech.repository.UserRepository;
 import com.onyetech.onyetech.request.LoginRequest;
+import com.onyetech.onyetech.response.GetUsersResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -54,6 +55,12 @@ public class UserService implements UserDetailsService {
     public void deleteUser(Long userId){
         userRepository.delete(user);
     }
+
+    public User getUsers(Long userId) {
+
+        return userRepository.findByUserId(userId);
+    }
+
 
 
 }

@@ -6,6 +6,7 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode
 @Getter
+@Setter
 @ToString
 public class SignUpDTO {
     private String email;

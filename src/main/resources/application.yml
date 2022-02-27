@@ -4,13 +4,16 @@ server:
 
     include-message: always
     include-binding-errors: always
-  port: 8050
+  port: 8080
 
 spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   datasource:
-    password: postgres
-    url: jdbc:postgresql://localhost:5430/OnyetechServices
-    username:
+    password: e60344c25d24263594817b4969c0a7011ac4e8bbf16e3d91b385531909feef75
+    url: jdbc:postgresql://ec2-63-32-7-190.eu-west-1.compute.amazonaws.com:5432/d4shv3p8n39qnv
+    username: dojuoginmronhi
   jpa:
     hibernate:
       ddl-auto: update
@@ -21,10 +24,10 @@ spring:
     show-sql: true
 
   mail:
-    host: localhost
+    host: ec2-63-32-7-190.eu-west-1.compute.amazonaws.com
     port: 1080
-    username: postgres
-    password: root
+    username: dojuoginmronhi
+    password: e60344c25d24263594817b4969c0a7011ac4e8bbf16e3d91b385531909feef75
 
     properties:
       mail:

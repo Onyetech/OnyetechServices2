@@ -1,4 +1,6 @@
-maildev:
-  image: maildev/maildev
+myapp:
+  build: .
   ports:
-    - "1080:80"
+    - "8081:8050"
+  extra_hosts:
+    - "dockerhost:$DOCKERHOST"

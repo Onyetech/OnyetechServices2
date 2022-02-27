@@ -1,39 +1,34 @@
 package com.onyetech.onyetech.controller;
 
-import com.onyetech.onyetech.entity.User;
-import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import com.onyetech.onyetech.repository.UserRepository;
+import com.onyetech.onyetech.response.GetUsersResponse;
+import com.onyetech.onyetech.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 
 @RestController
-@AllArgsConstructor
-@RequestMapping(path = "admin")
+@RequestMapping(path = "/admin")
 public class AdminController {
 
-    private final User user;
+    private final UserRepository userRepository;
+    private final UserService userService;
 
-    Map<String, User> users;
-
-    @GetMapping(path="/user/{userId}",
-            produces = {
-                    MediaType.APPLICATION_XML_VALUE,
-                    MediaType.APPLICATION_JSON_VALUE
-            })
-    public ResponseEntity<User> getUser(@PathVariable String userId, @RequestParam(value ="page", defaultValue = "1") int page,
-                                        @RequestParam(value ="limit", defaultValue = "50") int limit,
-                                        @RequestParam(value ="sort", defaultValue = "desc", required = false) String sort){
-        if (users.containsKey(userId)){
-            return new ResponseEntity<>(users.get(userId), HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-
-
+    @Autowired
+    public AdminController(UserRepository userRepository, UserService userService) {
+        this.userRepository = userRepository;
+        this.userService = userService;
     }
+
+
+//    @GetMapping("/users")
+//    public ResponseEntity<?> getUsers(@RequestParam(name = "page", defaultValue = "0") int page,
+//                                               @RequestParam(name = "size", defaultValue = "2") int size){
+//
+//        GetUsersResponse users = userService.getAllUsers(page, size, "name");
+//        return ResponseEntity.ok(users);
+//    }
+
+
 }
